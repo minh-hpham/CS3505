@@ -6,19 +6,28 @@
 #include <queue>
 #include <vector>
 #include <string>
-//#include <fstream>
+#include "boost/date_time/gregorian/gregorian.hpp"
 class inventory
 {
- private:
-  std::map<std::string,std::queue<FoodItem> > warehouse;
-  std::vector<std::string> lines;
-  std::vector<std::string> upc_list;
-  //date current;
+private:
+std::map<std::string,std::queue<FoodItem> > warehouse;
+std::vector<std::string> lines;
+std::vector<std::string> upc_list;
+boost::gregorian::date current;
+
+void addFoodItem(std::string & line);
+void addWarehouse(std::string &  line);
+void addStartDate(std::string & line);
+void addReceive(std::string & line);
+void addRequest(std::string & line);
+void nextDay();
+void end();
+  
 
 
- public:
-  inventory(std::string _fileName);
-  ~inventory();
+public:
+inventory(std::string _fileName);
+~inventory();
 };
 
 #endif

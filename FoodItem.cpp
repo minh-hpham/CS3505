@@ -7,5 +7,5 @@ FoodItem::FoodItem(string code, string name, string _date)
 {
   this->UPC_code = code;
   this->_name = name;
-  this->received=from_us_string(_date);
+  //this->received=from_us_string(_date);
 }
