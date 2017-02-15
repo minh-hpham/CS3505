@@ -9,9 +9,9 @@
 #include <sstream> //read words in line
 using namespace std;
 using namespace std;
-int main()
+int main(int argc, char *argv[] )
 {
-inventory h("data1.txt");
+inventory h(argv[1]);
 
 return 0;
 }

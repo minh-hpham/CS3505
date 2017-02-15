@@ -9,6 +9,7 @@
 #include <sstream> //read words in line
 #include "boost/date_time/gregorian/gregorian.hpp"
 using namespace std;
+using namespace boost::gregorian;
 
 /*
  NOTE: seem like we should make the warehouse as a map of map of each type of 
@@ -68,8 +69,7 @@ void inventory::addFoodItem(std::string & line)
       else if (word.compare("Code:") == 0)
 	{
 	  ss >> word;
-	  code = word;
-	
+	  code = word;	
 	}
       else if(word.compare("life:") == 0)
 	{
@@ -85,10 +85,23 @@ void inventory::addFoodItem(std::string & line)
 	    }while(ss.fail() == false);
 	}
     }
-  FoodItem f(code,name,life);
-  warehouse[code].push(f);
-  
+  FoodItem f(code,name,days(atoi(life.c_str())));
+  upc_list.insert(make_pair(code,f)); // make a map  of all food type
 }
+
+// set date format
+const std::locale fmt2(std::locale::classic(),
+                       new boost::gregorian::date_input_facet("%m/%d/%Y"));
+//get date from string
+boost::gregorian::date getDate( const std::string& str)
+{
+    std::istringstream is(str);
+    is.imbue(fmt2);
+    boost::gregorian::date date;
+    is >> date;
+    return date;
+}
+
 void inventory::addWarehouse(std::string & line)
 {
   istringstream ss(line);
@@ -101,31 +114,31 @@ void inventory::addWarehouse(std::string & line)
       if(ss.fail())
 	break;
 
-      else if (word.compare("Code:") == 0)
+      else if (word.compare("-") == 0)
 	{
 	  ss >> word;
-	  code = word;
-	
+	  warehouse_list.push_back(word);
 	}
-      else if(word.compare("life:") == 0)
-	{
-	  ss >> word;
-	  life = word;
-	}
-      else if(word.compare("Name:") == 0)
-	{
-	  do
-	    {
-	      ss >> word;
-	      name.append(word);
-	    }while(ss.fail() == false);
-	}
-    }
-  FoodItem f(code,name,life);
-  warehouse[code].push(f);
+    } 
 }
 void inventory::addStartDate(std::string & line)
 {
+  istringstream ss(line);
+  string date;
+  while(true)
+    {
+      string word;
+      ss >> word;
+      
+      if(ss.fail())
+	break;
+
+      else if (word.compare("date:") == 0)
+	{
+	  ss >> word;
+	  this->current=getDate(word);
+	}
+    } 
 }
 void inventory::addReceive(std::string & line)
 {

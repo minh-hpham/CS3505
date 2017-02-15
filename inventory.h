@@ -10,9 +10,10 @@
 class inventory
 {
 private:
-std::map<std::string,std::queue<FoodItem> > warehouse;
+  std::map<std::string,std::map<std::string,std::queue< boost::gregorian::date > > > warehouse;
+std:: vector<std::string>warehouse_list;
 std::vector<std::string> lines;
-std::vector<std::string> upc_list;
+std::map<std::string, FoodItem> upc_list;
 boost::gregorian::date current;
 
 void addFoodItem(std::string & line);

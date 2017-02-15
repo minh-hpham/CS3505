@@ -5,9 +5,10 @@ class FoodItem
 {
  private:
   std::string UPC_code;
-  std::string _name;
-  // boost::gregorian::date received;
+  std::string name;
+  boost::gregorian::date received;
+  boost::gregorian::days life;
  public:
-  FoodItem(std::string code, std::string name, std::string date);
+  FoodItem(std::string code, std::string name,boost::gregorian:: days shelfLife);
 };
 #endif

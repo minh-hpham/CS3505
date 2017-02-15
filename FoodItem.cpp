@@ -3,9 +3,9 @@
 #include "boost/date_time/gregorian/gregorian.hpp"
 using namespace std;
 using namespace boost::gregorian;
-FoodItem::FoodItem(string code, string name, string _date)
+FoodItem::FoodItem(string code, string foodName,days shelfLife)
 {
   this->UPC_code = code;
-  this->_name = name;
-  //this->received=from_us_string(_date);
+  this->name = foodName;
+  this->life=shelfLife;
 }
