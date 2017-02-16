@@ -9,3 +9,10 @@ FoodItem::FoodItem(string code, string foodName,days shelfLife)
   this->name = foodName;
   this->life = shelfLife;
 }
+
+FoodItem:: FoodItem(const FoodItem & other)
+{
+  this->UPC_code = other.UPC_code;
+  this->name = other.name;
+  this->life= other.life;
+}

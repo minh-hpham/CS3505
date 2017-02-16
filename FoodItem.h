@@ -11,5 +11,6 @@ class FoodItem
   boost::gregorian::days life;
  public:
   FoodItem(std::string code, std::string name,boost::gregorian::days shelfLife);
+  FoodItem(const FoodItem & other);
 };
 #endif
