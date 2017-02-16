@@ -11,17 +11,13 @@
 using namespace std;
 using namespace boost::gregorian;
 
-/*
- NOTE: seem like we should make the warehouse as a map of map of each type of 
-FoodItem. 
-PROBLEM: then it's hard to determine which food is expired to remove it 
-because we will have many queue of FoodItem
-
- */
-
 
 inventory::inventory(string fileName)
 {
+
+  string today = "01/01/2017";
+  this->current = from_us_string(today);
+
   ifstream in(fileName.c_str());
   while(true)
     {
@@ -84,23 +80,25 @@ void inventory::addFoodItem(std::string & line)
 	    }while(ss.fail() == false);
 	}
     }
-  FoodItem f(code,name,days(atoi(life.c_str())));
-  upc_list.insert(make_pair(code,f)); // make a map  of all food type
-}
 
+  int d = atoi(life.c_str());
+  FoodItem f(code,name,days(d));
+  upc_list.insert(std::pair<std::string,FoodItem>(code,f)); // make a map  of all food type
+}
+/*
 // set date format
 const std::locale fmt2(std::locale::classic(),
                        new boost::gregorian::date_input_facet("%m/%d/%Y"));
 //get date from string
 boost::gregorian::date getDate( const std::string& str)
 {
-    std::istringstream is(str);
-    is.imbue(fmt2);
-    boost::gregorian::date date;
-    is >> date;
-    return date;
+  std::istringstream is(str);
+  is.imbue(fmt2);
+  boost::gregorian::date date;
+  is >> date;
+  return date;
 }
-
+*/
 void inventory::addWarehouse(std::string & line)
 {
   istringstream ss(line);
@@ -119,6 +117,7 @@ void inventory::addWarehouse(std::string & line)
 	  warehouse_list.push_back(word);
 	}
     } 
+  
 }
 void inventory::addStartDate(std::string & line)
 {
@@ -135,9 +134,14 @@ void inventory::addStartDate(std::string & line)
       else if (word.compare("date:") == 0)
 	{
 	  ss >> word;
-	  this->current=getDate(word);
+	  date = word;
+	  
+	  //getDate(word);
 	}
-    } 
+    }
+
+  /*  boost::gregorian:: date d(from_us_string(date));
+      this->current = d;*/
 }
 void inventory::addReceive(std::string & line)
 {
@@ -164,12 +168,13 @@ void inventory::addReceive(std::string & line)
 	  city=word;
 	}
     } 
+  
   if (warehouse.find(city) == warehouse.end()) // warehouse doesn't exist
     {
       for (int i=0; i<quantity; i++)
-       {
-	    receiveDate.push(current);
-       }
+	{
+	  receiveDate.push(current);
+	}
       aWarehouse[UPC]=receiveDate;
       warehouse[city]=aWarehouse;
     }
@@ -178,26 +183,27 @@ void inventory::addReceive(std::string & line)
       aWarehouse=warehouse[city];
       if (aWarehouse.find(UPC)==aWarehouse.end()) // food item doesn't exist
 	{
-	   for (int i=0; i<quantity; i++)
-	     {
-	       receiveDate.push(current);
-	     }
-	   aWarehouse[UPC]=receiveDate;
+	  for (int i=0; i<quantity; i++)
+	    {
+	      receiveDate.push(current);
+	    }
+	  aWarehouse[UPC]=receiveDate;
 	}
       else //food item exist, update quantity
 	{
 	  receiveDate=aWarehouse[UPC]; //get the queue to update
 	  for (int i=0; i<quantity; i++)
-	     {
-	       receiveDate.push(current);
-	     }
+	    {
+	      receiveDate.push(current);
+	    }
 	}
     }
 }
 
-void checkExpire( queue <date> dates, days shelfLife )
+void inventory::checkExpire( queue <boost::gregorian::date> dates, days shelfLife )
 {
-  while (current - dates.front() > shelfLife){
+  // boost::gregorian::date now = current;
+  while (this->current - dates.front() > shelfLife){
     dates.pop(); // if expired,pop from the queue
   }
 }
@@ -218,7 +224,7 @@ void inventory::addRequest(std::string & line)
       if(ss.fail())
 	break;
 
-      else if (word.compare("receive:") == 0)
+      else if (word.compare("Request:") == 0)
 	{
 	  ss >> word;
 	  UPC=word;
@@ -228,7 +234,7 @@ void inventory::addRequest(std::string & line)
 	  city=word;
 	}
     } 
-  days shelfLife=upc_list[UPC].life;
+  days shelfLife = upc_list[UPC].life;
   //update popular request map
   popular[UPC]++;
   
@@ -243,12 +249,15 @@ void inventory::addRequest(std::string & line)
 	}
       else // item exist
 	{
-	  receiveDate=checkExpire(aWarehouse[UPC],shelfLife);
-	  if (receiveDate.size()>quantity) // if has more the required #
+	  checkExpire(aWarehouse[UPC],shelfLife);
+	  //receiveDate =  checkExpire(aWarehouse[UPC],shelfLife);
+	  // if (receiveDate.size()>quantity) // if has more the required #
+	  if(aWarehouse.size() > quantity)
 	    {
 	      for (int i=0; i<quantity; i++)
 		{
-		  receiveDate.pop();
+		   receiveDate.pop();
+		   //aWarehouse.pop();
 		}
 	    }
 	  else

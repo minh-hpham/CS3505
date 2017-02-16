@@ -7,5 +7,5 @@ FoodItem::FoodItem(string code, string foodName,days shelfLife)
 {
   this->UPC_code = code;
   this->name = foodName;
-  this->life=shelfLife;
+  this->life = shelfLife;
 }
