@@ -19,24 +19,23 @@ inventory::inventory(string fileName)
   ifstream in(fileName.c_str());
   string line;
   while(getline(in,line))
-    {
-      cout<<line<<endl;
-      /*
+    {  
       if(line.find("FoodItem") == 0)
-	cout<<"got food"<<endl;//addFoodItem(line);     
+	addFoodItem(line);     
       else if(line.find("Receive:") == 0)
-        cout<<"got receive"<<endl;
+        addReceive(line);
       else if(line.find("Request:") == 0)
-	cout<<"got request"<<endl;
+        addRequest(line);
       else if(line.find("Next") == 0)
-	//nextDay();
-	cout<<"got next"<<endl;
-     
+	nextDay();   
+      else if(line.find("End") == 0)
+	{
+	  end();
+	  break;
+	}
       else{
-	cout<<"got end"<<endl;//end();
-	break;      
       }
-      */
+      
       
    }
   in.close();
@@ -127,6 +126,7 @@ void inventory::checkExpire( queue <int> & dates, const int  & shelfLife)
 
 void inventory::addRequest(std::string & line)
 {
+ cout<<"start"<<endl;
   istringstream ss(line);
   string UPC, city;
   int quantity;
@@ -153,7 +153,7 @@ void inventory::addRequest(std::string & line)
   int shelfLife = upc_days[UPC]; 
     
   //update popular request map
-  cout<<popular[UPC]<<" "<<quantity<<endl;
+  // cout<<popular[UPC]<<" "<<quantity<<endl;
   popular[UPC]+= quantity;
   
   if (warehouse.find(city) == warehouse.end()) // warehouse doesn't exist
@@ -170,7 +170,7 @@ void inventory::addRequest(std::string & line)
 	   
 	  checkExpire(warehouse[city][UPC], shelfLife);
 
-	  if(warehouse[city][UPC].size() > quantity)
+	  if(warehouse[city][UPC].size() >= quantity)
 	    {
 	      for (int i=0; i<quantity; i++)
 		{
@@ -183,11 +183,13 @@ void inventory::addRequest(std::string & line)
 	    }
 	}
     }
+  cout<<"end"<<endl;
 }
 
 
 void inventory::nextDay()
 {
+  cout<<"next day"<<endl;
   this->current = this->current + 1;
 }
 void inventory::end()
@@ -244,7 +246,6 @@ void inventory::end()
    cout<<endl;
 
 
-
   //debug map
 cout<<"stocked"<<endl;
 for(map<string, int>::iterator it=stocked.begin(); it!=stocked.end();++it)
@@ -259,7 +260,6 @@ cout<<"popular"<<endl;
 	cout<<it->first<<" "<<it->second<<endl;
     }
   
-
 
 
 
