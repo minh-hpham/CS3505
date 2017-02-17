@@ -17,25 +17,26 @@ inventory::inventory(string fileName)
   this->current = 1;
 
   ifstream in(fileName.c_str());
-  while(true)
+  string line;
+  while(getline(in,line))
     {
-      string line;
-      getline(in,line);
-      if(in.fail())
-	break;
-      else if(line.find("FoodItem") == 0)
-	addFoodItem(line);     
+      cout<<line<<endl;
+      /*
+      if(line.find("FoodItem") == 0)
+	cout<<"got food"<<endl;//addFoodItem(line);     
+      else if(line.find("Receive:") == 0)
+        cout<<"got receive"<<endl;
+      else if(line.find("Request:") == 0)
+	cout<<"got request"<<endl;
       else if(line.find("Next") == 0)
 	//nextDay();
 	cout<<"got next"<<endl;
-      else if(line.find("Receive") == 0)
-        cout<<"got receive"<<endl;
-      else if(line.find("Request") == 0)
-	cout<<"got request"<<endl;
+     
       else{
-	cout<<"got next"<<endl;//end();
-	break;
+	cout<<"got end"<<endl;//end();
+	break;      
       }
+      */
       
    }
   in.close();
