@@ -1,22 +1,20 @@
 #include "inventory.h"
 #include <iostream>
-#include "FoodItem.h"
+//#include "FoodItem.h"
 #include <map>
 #include <queue>
 #include <vector>
 #include <string>
+#include <iterator>
 #include <fstream> //read lines in file
 #include <sstream> //read words in line
-#include "boost/date_time/gregorian/gregorian.hpp"
-using namespace std;
-using namespace boost::gregorian;
 
+using namespace std;
 
 inventory::inventory(string fileName)
 {
 
-  string today = "01/01/2017";
-  this->current = from_us_string(today);
+  this->current = 1;
 
   ifstream in(fileName.c_str());
   while(true)
@@ -26,19 +24,20 @@ inventory::inventory(string fileName)
       if(in.fail())
 	break;
       else if(line.find("FoodItem") == 0)
-	addFoodItem(line);
-     
+	addFoodItem(line);     
       else if(line.find("Next") == 0)
-	nextDay();
+	//nextDay();
+	cout<<"got next"<<endl;
       else if(line.find("Receive") == 0)
-	addReceive(line);
+        cout<<"got receive"<<endl;
       else if(line.find("Request") == 0)
-	addRequest(line);
-      else
-	end();
+	cout<<"got request"<<endl;
+      else{
+	cout<<"got next"<<endl;//end();
+	break;
+      }
       
-      
-    }
+   }
   in.close();
 }
 
@@ -70,19 +69,18 @@ void inventory::addFoodItem(std::string & line)
 	}
       else if(word.compare("Name:") == 0)
 	{
-	  do
-	    {
-	      ss >> word;
-	      name.append(word);
-	    }while(ss.fail() == false);
+	  ss >> word;
+	  while(ss.fail() == false)
+	  {	    
+	    name.append(word);
+	    name.append(" ");
+	    ss >> word;
+	  }
 	}
     }
 
-  int d = atoi(life.c_str());
-  upc_days[code] = days(d);
+  upc_days[code] = atoi(life.c_str());
   upc_name[code] = name;
-  //FoodItem f(code,name,days(d));
-  //pair<const string, FoodItem> toInsert = pair<const string, FoodItem>(code, f);
   
  
 }
@@ -119,7 +117,7 @@ void inventory::addReceive(std::string & line)
        
 }
 
-void inventory::checkExpire( queue <boost::gregorian::date> & dates, const boost::gregorian::days & shelfLife)
+void inventory::checkExpire( queue <int> & dates, const int  & shelfLife)
 {
   while (this->current - dates.front() > shelfLife){
     dates.pop(); // if expired,pop from the queue
@@ -151,20 +149,18 @@ void inventory::addRequest(std::string & line)
 	}
     } 
 
-  days shelfLife = upc_days[UPC];
-  /* if(upc_list.find(UPC) != upc_list.end())
-     shelfLife =  upc_list[UPC].life;*/
-  
+  int shelfLife = upc_days[UPC]; 
     
   //update popular request map
-  popular[UPC]++;
+  cout<<popular[UPC]<<" "<<quantity<<endl;
+  popular[UPC]+= quantity;
   
   if (warehouse.find(city) == warehouse.end()) // warehouse doesn't exist
     { // do nothing
     }
   else
     {
-      //aWarehouse = warehouse[city];
+   
       if (warehouse[city].find(UPC)==warehouse[city].end()) // item doesn't exist
 	{ // do nothing
 	}
@@ -191,9 +187,85 @@ void inventory::addRequest(std::string & line)
 
 void inventory::nextDay()
 {
-  date_duration dd(1);
-  current = current + dd;
+  this->current = this->current + 1;
 }
 void inventory::end()
 {
+  cout<<"Report by Minh Pham and To Tang"<<endl;
+  cout<<endl;
+ 
+  // create list of all stocked UPC
+  typedef map<string, queue<int> > InnerMap;
+  typedef map<string, InnerMap> OuterMap;
+
+  map<string,int> stocked;
+  for(OuterMap::iterator outer_iter=warehouse.begin(); outer_iter!=warehouse.end(); ++outer_iter) {
+    InnerMap &val = outer_iter->second;
+    for(InnerMap::iterator inner_iter=val.begin(); inner_iter!=val.end(); ++inner_iter) {
+      stocked[inner_iter->first]++;
+    }
+  }
+  cout<<"Unstocked Products:"<<endl;
+  for(map<string, string>::iterator it=upc_name.begin(); it!=upc_name.end();++it)
+    {
+      if(stocked[it->first] == 0)
+	cout<<it->first<<" "<<it->second<<endl;
+    }
+  cout<<endl;
+
+
+  cout<<"Well-Stocked Products:"<<endl;
+  for(map<string, string>::iterator it=upc_name.begin(); it!=upc_name.end();++it)
+    {
+      if(stocked[it->first] > 1)
+	cout<<it->first<<" "<<it->second<<endl;
+    }
+  cout<<endl;
+  cout<<"Most Popular Products:"<<endl;
+ // most popular
+
+  int n = popular.size() < 3? popular.size():3;
+  for(int i = 0; i < n; i++)
+    {
+      int max = 0;
+      string code;
+      for(map<string, int>::iterator it=popular.begin(); it!=popular.end();++it)
+	{
+	  if(it->second > max)
+	    {
+	      max = it->second;
+	      code = it->first;
+	    }
+	}
+      cout<<code<<" "<<upc_name[code]<<endl;
+      popular.erase(code);
+    }
+   cout<<endl;
+
+
+
+  //debug map
+cout<<"stocked"<<endl;
+for(map<string, int>::iterator it=stocked.begin(); it!=stocked.end();++it)
+    {
+      
+	cout<<it->first<<" "<<it->second<<endl;
+    }
+cout<<"popular"<<endl;
+  for(map<string, int>::iterator it=popular.begin(); it!=popular.end();++it)
+    {
+      
+	cout<<it->first<<" "<<it->second<<endl;
+    }
+  
+
+
+
+
+}
+int main(int argc, char *argv[] )
+{
+  inventory h(argv[1]);
+
+  return 0;
 }
