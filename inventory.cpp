@@ -117,16 +117,17 @@ void inventory::addReceive(std::string & line)
        
 }
 
-void inventory::checkExpire( queue <int> & dates, const int  & shelfLife)
+//void inventory::checkExpire( const queue <int> & dates, const int  & shelfLife)
+void inventory::checkExpire( queue <int> dates, const int shelfLife)
 {
-  while (this->current - dates.front() > shelfLife){
+  while(!dates.empty()&& ((this->current - dates.front()) > shelfLife)){
     dates.pop(); // if expired,pop from the queue
   }
 }
 
 void inventory::addRequest(std::string & line)
 {
- cout<<"start"<<endl;
+
   istringstream ss(line);
   string UPC, city;
   int quantity;
@@ -153,7 +154,7 @@ void inventory::addRequest(std::string & line)
   int shelfLife = upc_days[UPC]; 
     
   //update popular request map
-  // cout<<popular[UPC]<<" "<<quantity<<endl;
+
   popular[UPC]+= quantity;
   
   if (warehouse.find(city) == warehouse.end()) // warehouse doesn't exist
@@ -166,10 +167,8 @@ void inventory::addRequest(std::string & line)
 	{ // do nothing
 	}
       else // item exist
-	{
-	   
-	  checkExpire(warehouse[city][UPC], shelfLife);
-
+	{	   
+	 
 	  if(warehouse[city][UPC].size() >= quantity)
 	    {
 	      for (int i=0; i<quantity; i++)
@@ -183,13 +182,25 @@ void inventory::addRequest(std::string & line)
 	    }
 	}
     }
-  cout<<"end"<<endl;
+ 
 }
 
 
 void inventory::nextDay()
 {
-  cout<<"next day"<<endl;
+    // create list of all stocked UPC
+  typedef map<string, queue<int> > InnerMap;
+  typedef map<string, InnerMap> OuterMap;
+
+  map<string,int> stocked;
+  for(OuterMap::iterator outer_iter=warehouse.begin(); outer_iter!=warehouse.end(); ++outer_iter) {
+    InnerMap &val = outer_iter->second;
+    for(InnerMap::iterator inner_iter=val.begin(); inner_iter!=val.end(); ++inner_iter) {
+       int shelfLife = upc_days[inner_iter->first]; 
+       checkExpire(inner_iter->second, shelfLife);
+    }
+  }
+ 
   this->current = this->current + 1;
 }
 void inventory::end()
@@ -245,7 +256,7 @@ void inventory::end()
     }
    cout<<endl;
 
-
+   /*
   //debug map
 cout<<"stocked"<<endl;
 for(map<string, int>::iterator it=stocked.begin(); it!=stocked.end();++it)
@@ -260,7 +271,7 @@ cout<<"popular"<<endl;
 	cout<<it->first<<" "<<it->second<<endl;
     }
   
-
+   */
 
 
 }

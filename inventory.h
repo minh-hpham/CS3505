@@ -18,7 +18,7 @@ class inventory
 
   void addFoodItem(std::string & line);
   void addReceive(std::string & line);
-  void checkExpire(std::queue <int > & dates, const int  & shelfLife );
+  void checkExpire(std::queue <int > dates, const int shelfLife );
   void addRequest(std::string & line);
   void nextDay();
   void end();
