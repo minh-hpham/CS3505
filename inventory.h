@@ -1,7 +1,10 @@
+
+/*
+ * Teammates: Minh Pham (U0975798) and To Tang (U0529788)
+ */
+
 #ifndef INVENTORY_H
 #define INVENTORY_H
-
-//#include "FoodItem.h"
 #include <map>
 #include <queue>
 #include <vector>

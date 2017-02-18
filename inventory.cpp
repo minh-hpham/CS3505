@@ -1,3 +1,7 @@
+/*
+ * Teammates: Minh Pham (U0975798) and To Tang (U0529788)
+ */
+
 #include "inventory.h"
 #include <iostream>
 #include <map>
