@@ -137,7 +137,7 @@ void inventory::addReceive(std::string & line)
  */
 void inventory::checkExpire( queue <int> & dates, const int shelfLife)
 {
-  while(!dates.empty()&& ((this->current - dates.front()) > shelfLife)){
+  while(!dates.empty()&& ((this->current - dates.front()) >= shelfLife)){
     dates.pop(); // if expired,pop from the queue
   }
 }
@@ -242,21 +242,15 @@ void inventory::end()
   // Search all the warehouses to add to stocked
   for(OuterMap::iterator outer_iter=warehouse.begin(); outer_iter!=warehouse.end(); ++outer_iter) {
     InnerMap &val = outer_iter->second;
-    cout<<endl;
-    cout<<outer_iter->first<<endl;
+    
     for(InnerMap::iterator inner_iter=val.begin(); inner_iter!=val.end(); ++inner_iter) {
-      cout<<inner_iter->first<<" "<<(inner_iter->second).size()<<endl;
+      
       if(!(inner_iter->second).empty())
 	stocked[inner_iter->first]++;
       
     }
   }
-  // debug
-  for(map<string, int>::iterator it=stocked.begin(); it!=stocked.end();++it)
-    {      
-	cout<<it->first<<" "<<it->second<<endl;
-    }
-  
+
   // Unstocked products are stored in none of the warehouse
   // Their values in stocked map is 0
   cout<<"Unstocked Products:"<<endl;
